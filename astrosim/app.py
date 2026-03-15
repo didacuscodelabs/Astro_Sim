@@ -978,8 +978,8 @@ elif MODULE == "04 — Unit Converter":
 <div class='status-bar'>IAU 2012 · BIPM · CODATA 2018 &nbsp;|&nbsp; DISTANCE · MASS · VELOCITY · TIME</div>
 """, unsafe_allow_html=True)
 
-    tab_dist, tab_mass, tab_scale = st.tabs([
-        "Distance", "Mass & Velocity", "Universe Scale"
+    tab_dist, tab_mass, tab_scale, tab_viges = st.tabs([
+        "Distance", "Mass & Velocity", "Universe Scale", "Vigesimal / Maya"
     ])
 
     # ── Distance tab
@@ -1196,3 +1196,78 @@ c = 2.998×10⁸ m/s
 Observable universe / quark ≈ 10^{int(round(math.log10(span)))} — the full dynamic range displayed above.
 </div>
 """, unsafe_allow_html=True)
+# ── Vigesimal / Maya tab
+    with tab_viges:
+        from physics.vigesimal import (
+            astronomical_distance_vigesimal,
+            full_vigesimal_display,
+            maya_long_count,
+            solar_system_vigesimal_table,
+            orbital_period_maya,
+        )
+
+        st.markdown("#### Vigesimal (base-20) — Maya astronomical notation")
+        st.markdown("""
+<div class='status-bar'>SISTEMA VIGESIMAL MAYA &nbsp;|&nbsp; BASE-20 &nbsp;|&nbsp; ETNO-MATEMÁTICA</div>
+""", unsafe_allow_html=True)
+
+        col_v1, col_v2 = st.columns([1, 2], gap="medium")
+
+        with col_v1:
+            vunit = st.selectbox("Input unit", [
+                "km", "m", "light_seconds", "light_minutes"
+            ], key="vunit")
+            vval = st.number_input("Distance value", value=149597870.7,
+                                    format="%.2f", key="vval")
+
+            dist_m_v = vval * {
+                "m": 1.0, "km": 1e3,
+                "light_seconds": 2.998e8,
+                "light_minutes": 2.998e8 * 60,
+            }[vunit]
+
+            st.markdown("""
+<div class='formula-box'>
+Maya digits: ● = 1 &nbsp; ▬ = 5 &nbsp; ∅ = 0<br>
+Base: 20⁰=1, 20¹=20, 20²=400, 20³=8000<br>
+Long Count: kin · winal · tun · katun · baktun
+</div>
+""", unsafe_allow_html=True)
+
+        with col_v2:
+            try:
+                r = astronomical_distance_vigesimal(dist_m_v, unit="km")
+                st.markdown("#### Result")
+                st.code(r["full_display"], language=None)
+
+                st.markdown("#### Maya digit glyphs")
+                glyph_str = "   |   ".join(
+                    f"{r['place_names'][i]} ({r['digits'][i]}): {r['glyph_digits'][i]}"
+                    for i in range(len(r["digits"]))
+                )
+                st.code(glyph_str, language=None)
+
+                st.markdown("#### Yucatec Maya names")
+                st.markdown(" · ".join(r["maya_names"]))
+            except Exception as e:
+                st.error(f"Error: {e}")
+
+        st.markdown("<div class='section-divider'></div>", unsafe_allow_html=True)
+        st.markdown("#### Solar system distances in vigesimal")
+        table = solar_system_vigesimal_table()
+        for row in table:
+            digits_str = "–".join(str(d) for d in row["vigesimal_digits"])
+            st.markdown(
+                f"`{row['name']:<10}` &nbsp; "
+                f"{row['semi_major_au']:.3f} AU &nbsp;|&nbsp; "
+                f"**{digits_str}**₂₀ &nbsp;|&nbsp; "
+                f"{row['glyph_repr']}",
+                unsafe_allow_html=True
+            )
+
+        st.markdown("<div class='section-divider'></div>", unsafe_allow_html=True)
+        st.markdown("#### Orbital periods in Maya Long Count")
+        from physics.constants import PLANETS
+        for name, data in PLANETS.items():
+            lc_str = orbital_period_maya(data["orbital_period_days"])
+            st.markdown(f"`{name.capitalize():<10}` &nbsp; {lc_str}")
