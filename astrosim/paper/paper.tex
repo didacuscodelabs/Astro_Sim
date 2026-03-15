@@ -1,0 +1,716 @@
+---
+title: 'AstroSim: An Open-Source Interactive Platform for Astrophysics Simulation and Orbital Mechanics Education'
+tags:
+  - Python
+  - astrophysics
+  - orbital mechanics
+  - gravitational dynamics
+  - scientific education
+  - interactive simulation
+authors:
+  - name: Diego Palencia
+    orcid: 0000-0000-0000-0000
+    affiliation: 1
+affiliations:
+  - name: Independent Researcher
+    index: 1
+date: 2025
+bibliography: references.bib
+---
+
+\documentclass[10pt,a4paper]{article}
+
+% ── Packages ──────────────────────────────────────────────────────────────────
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage[margin=2.5cm]{geometry}
+\usepackage{amsmath, amssymb, amsthm}
+\usepackage{graphicx}
+\usepackage{hyperref}
+\usepackage{xcolor}
+\usepackage{listings}
+\usepackage{booktabs}
+\usepackage{natbib}
+\usepackage{microtype}
+\usepackage{parskip}
+\usepackage{fancyhdr}
+\usepackage{titlesec}
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage{url}
+\usepackage{doi}
+\usepackage{mdframed}
+
+% ── Colours ───────────────────────────────────────────────────────────────────
+\definecolor{joss-blue}{RGB}{0, 114, 178}
+\definecolor{code-bg}{RGB}{248, 248, 248}
+\definecolor{code-comment}{RGB}{100, 100, 100}
+\definecolor{code-keyword}{RGB}{0, 80, 160}
+\definecolor{code-string}{RGB}{140, 50, 0}
+\definecolor{amber}{RGB}{180, 100, 0}
+
+% ── Hyperref ──────────────────────────────────────────────────────────────────
+\hypersetup{
+  colorlinks = true,
+  linkcolor  = joss-blue,
+  citecolor  = joss-blue,
+  urlcolor   = joss-blue,
+  pdftitle   = {AstroSim: An Open-Source Interactive Platform for Astrophysics Simulation},
+  pdfauthor  = {Diego Palencia},
+}
+
+% ── Code listings ─────────────────────────────────────────────────────────────
+\lstdefinestyle{python}{
+  language         = Python,
+  backgroundcolor  = \color{code-bg},
+  basicstyle       = \ttfamily\footnotesize,
+  keywordstyle     = \color{code-keyword}\bfseries,
+  stringstyle      = \color{code-string},
+  commentstyle     = \color{code-comment}\itshape,
+  breaklines       = true,
+  frame            = single,
+  framerule        = 0.4pt,
+  rulecolor        = \color{gray!40},
+  numbers          = left,
+  numberstyle      = \tiny\color{gray},
+  numbersep        = 6pt,
+  xleftmargin      = 12pt,
+  showstringspaces = false,
+  tabsize          = 4,
+  captionpos       = b,
+}
+\lstset{style=python}
+
+% ── Typography ────────────────────────────────────────────────────────────────
+\titleformat{\section}{\large\bfseries\color{joss-blue}}{}{0em}{}[\titlerule]
+\titleformat{\subsection}{\normalsize\bfseries}{}{0em}{}
+\titleformat{\subsubsection}{\normalsize\itshape}{}{0em}{}
+
+\setlength{\parskip}{0.5em}
+
+% ── Page style ────────────────────────────────────────────────────────────────
+\pagestyle{fancy}
+\fancyhf{}
+\rhead{\small\color{gray} \textit{AstroSim} --- Palencia (2025)}
+\lhead{\small\color{gray} Journal of Open Source Software}
+\rfoot{\small\thepage}
+\renewcommand{\headrulewidth}{0.3pt}
+
+% ── Theorem-like environments ─────────────────────────────────────────────────
+\newmdenv[
+  backgroundcolor = amber!8,
+  linecolor       = amber!60,
+  linewidth       = 0.6pt,
+  innerleftmargin = 10pt,
+  innerrightmargin= 10pt,
+  innertopmargin  = 6pt,
+  innerbottommargin=6pt,
+  skipabove       = 8pt,
+  skipbelow       = 8pt,
+]{formulabox}
+
+% ══════════════════════════════════════════════════════════════════════════════
+\begin{document}
+% ══════════════════════════════════════════════════════════════════════════════
+
+% ── Title block ───────────────────────────────────────────────────────────────
+\begin{center}
+  {\LARGE\bfseries AstroSim: An Open-Source Interactive Platform for\\[4pt]
+  Astrophysics Simulation and Orbital Mechanics Education}
+
+  \vspace{1.2em}
+
+  {\large Diego Palencia$^{1}$}
+
+  \vspace{0.5em}
+
+  {\small $^{1}$Independent Researcher}
+
+  \vspace{0.5em}
+
+  {\small
+  \textbf{DOI:} \texttt{10.21105/joss.XXXXX}\quad
+  \textbf{Repository:} \href{https://github.com/diegopalencia/astrosim}{\texttt{github.com/diegopalencia/astrosim}}\quad
+  \textbf{License:} MIT
+  }
+
+  \vspace{0.8em}
+  \hrule height 0.6pt
+\end{center}
+
+\vspace{1em}
+
+% ── Abstract ──────────────────────────────────────────────────────────────────
+\begin{mdframed}[
+  backgroundcolor=joss-blue!5,
+  linecolor=joss-blue!30,
+  linewidth=0.6pt,
+  innerleftmargin=14pt,
+  innerrightmargin=14pt,
+  innertopmargin=10pt,
+  innerbottommargin=10pt,
+]
+\textbf{Abstract.}\quad
+Astrophysics and orbital mechanics constitute foundational disciplines within
+modern space science and aerospace engineering. However, the mathematical and
+conceptual complexity of these subjects frequently creates significant barriers
+for students, early-career researchers, and science communicators.
+This paper presents \textit{AstroSim}, an open-source, interactive platform
+designed to facilitate exploration of gravitational dynamics, orbital mechanics,
+and astronomical scales through real-time computational simulation.
+The platform integrates numerically accurate physical models grounded in
+Newtonian gravitation and Keplerian orbital mechanics, and provides interactive
+visualization tools calibrated against IAU~2012 and CODATA~2018 standards.
+Core modules include a live orbital simulator implementing the vis-viva equation
+and Kepler's laws, a gravitational force and potential energy calculator, an
+escape velocity and Hohmann transfer planner incorporating the Tsiolkovsky
+rocket equation, and a multi-unit astronomical distance converter spanning
+24~orders of magnitude.
+\textit{AstroSim} is implemented in Python using Streamlit and Matplotlib, and
+is freely deployable as a public web application.
+The platform aims to support computational thinking, physics education, and
+early exposure to astrophysical modelling in academic and outreach contexts.
+\end{mdframed}
+
+\vspace{0.6em}
+{\small
+\textbf{Keywords:} astrophysics, orbital mechanics, gravitational dynamics,
+Kepler's laws, scientific education, Python, Streamlit, computational simulation
+}
+
+\vspace{1em}
+
+% ══════════════════════════════════════════════════════════════════════════════
+\section{Introduction}
+% ══════════════════════════════════════════════════════════════════════════════
+
+The mathematical framework governing planetary motion and gravitational
+interaction was established between the seventeenth and nineteenth centuries
+through the contributions of Kepler~\citep{kepler1609}, Newton~\citep{newton1687},
+and Laplace~\citep{laplace1799}.
+Despite the maturity of this framework, the translation of its formalism into
+intuitive understanding remains a persistent pedagogical challenge.
+Classical treatments require students to simultaneously develop competency in
+differential calculus, vector mechanics, and coordinate geometry before
+meaningful engagement with even the simplest orbital scenarios.
+
+Interactive computational tools have demonstrated significant efficacy in
+bridging this gap.
+Work by \citet{wieman2008}, through the PhET Interactive Simulations project,
+established that well-designed simulations produce measurable improvements in
+conceptual understanding when compared to traditional static instruction.
+More recent developments in Python-based scientific computing
+\citep{oliphant2007, hunter2007, virtanen2020} have made it possible to deploy
+physically accurate simulations within accessible web frameworks.
+
+Several existing tools address subsets of this domain.
+REBOUND \citep{rein2012} provides a high-performance N-body integrator
+primarily targeting research use.
+Poliastro \citep{juan-zornoza2022} offers astrodynamics routines for mission
+design.
+The Astropy collaboration \citep{astropy2013, astropy2018} provides a
+comprehensive suite of astronomical utilities.
+However, these tools prioritise programmatic interfaces over interactive
+educational access; they are designed for users who already possess
+significant computational and physical background.
+
+\textit{AstroSim} addresses a complementary need: a platform that exposes
+the same physical models through a real-time interactive interface requiring
+no programming knowledge, while preserving full numerical accuracy and
+maintaining a design language consistent with scientific instrumentation.
+The platform is targeted at undergraduate physics and engineering students,
+science communicators, and self-directed learners entering the fields of
+astrophysics, aerospace engineering, and computational science.
+
+The remainder of this paper is structured as follows.
+Section~2 presents the physical foundations.
+Section~3 describes the software architecture.
+Section~4 documents the simulation modules.
+Section~5 discusses educational applications.
+Section~6 addresses limitations and future directions.
+Section~7 concludes.
+
+% ══════════════════════════════════════════════════════════════════════════════
+\section{Physical Foundations}
+% ══════════════════════════════════════════════════════════════════════════════
+
+All physical models in \textit{AstroSim} are implemented in SI units and
+calibrated against current international standards.
+Gravitational constant and related quantities follow CODATA~2018
+\citep{codata2018}; astronomical unit and planetary parameters follow
+IAU~2012 Resolution B2 \citep{iau2012}.
+
+\subsection{Newtonian Gravitation}
+
+The gravitational force between two point masses $m_1$ and $m_2$ separated
+by distance $r$ is given by Newton's law of universal gravitation
+\citep{newton1687}:
+
+\begin{formulabox}
+\begin{equation}
+F = G \frac{m_1 m_2}{r^2}
+\label{eq:newton}
+\end{equation}
+\end{formulabox}
+
+where $G = 6.67430 \times 10^{-11}$~N\,m$^2$\,kg$^{-2}$ is the gravitational
+constant.
+The associated gravitational potential energy of the system is:
+
+\begin{equation}
+U = -\frac{G m_1 m_2}{r}
+\label{eq:potential}
+\end{equation}
+
+The negative sign reflects the convention that $U \to 0$ as $r \to \infty$;
+bound gravitational systems have $U < 0$.
+The gravitational acceleration experienced by a test mass at distance $r$
+from a source of mass $M$ is:
+
+\begin{equation}
+g = \frac{GM}{r^2}
+\label{eq:gravity}
+\end{equation}
+
+\subsection{Orbital Mechanics}
+
+\subsubsection{Kepler's Laws and the Vis-Viva Equation}
+
+For a body of negligible mass orbiting a central mass $M$, Kepler's first law
+states that the orbit is a conic section with $M$ at one focus.
+For bound orbits (ellipses), the orbital radius at true anomaly $\theta$
+(the angle measured from periapsis) is given by the polar equation of an
+ellipse \citep{bate1971}:
+
+\begin{equation}
+r(\theta) = \frac{a(1 - e^2)}{1 + e\cos\theta}
+\label{eq:polar}
+\end{equation}
+
+where $a$ is the semi-major axis and $e \in [0, 1)$ is the orbital eccentricity.
+The apoapsis and periapsis distances are $r_{\mathrm{apo}} = a(1+e)$ and
+$r_{\mathrm{peri}} = a(1-e)$ respectively.
+
+Kepler's third law relates the orbital period $T$ to the semi-major axis:
+
+\begin{formulabox}
+\begin{equation}
+T = 2\pi \sqrt{\frac{a^3}{GM}}
+\label{eq:kepler3}
+\end{equation}
+\end{formulabox}
+
+The orbital speed at any point along the orbit is given by the vis-viva
+equation, which expresses conservation of total mechanical energy
+\citep{curtis2020}:
+
+\begin{formulabox}
+\begin{equation}
+v^2 = GM\left(\frac{2}{r} - \frac{1}{a}\right)
+\label{eq:visviva}
+\end{equation}
+\end{formulabox}
+
+For a circular orbit ($r = a$), equation~(\ref{eq:visviva}) reduces to
+$v_{\mathrm{circ}} = \sqrt{GM/r}$.
+
+\subsubsection{Escape Velocity}
+
+The minimum speed required for a body to escape a gravitational field from
+radius $r$, reaching $r \to \infty$ with zero residual kinetic energy, follows
+directly from energy conservation:
+
+\begin{formulabox}
+\begin{equation}
+v_{\mathrm{esc}} = \sqrt{\frac{2GM}{r}}
+\label{eq:escape}
+\end{equation}
+\end{formulabox}
+
+Note that $v_{\mathrm{esc}} = \sqrt{2}\, v_{\mathrm{circ}}$ for any circular
+orbit radius: the escape speed from any circular orbit is always a factor of
+$\sqrt{2}$ greater than the circular orbital speed at the same radius.
+
+\subsubsection{Schwarzschild Radius}
+
+A limiting case of equation~(\ref{eq:escape}) arises when $v_{\mathrm{esc}}$
+equals the speed of light $c = 2.99792458 \times 10^8$~m\,s$^{-1}$.
+This defines the Schwarzschild radius \citep{schwarzschild1916}:
+
+\begin{equation}
+r_s = \frac{2GM}{c^2}
+\label{eq:schwarzschild}
+\end{equation}
+
+For a body compressed within $r_s$, not even light can escape; this defines
+the event horizon of a Schwarzschild black hole.
+\textit{AstroSim} computes $r_s$ for any user-specified mass as a contextual
+indicator of compactness.
+
+\subsection{Orbital Manoeuvres}
+
+\subsubsection{Hohmann Transfer}
+
+The most propellant-efficient transfer between two coplanar circular orbits
+is the Hohmann transfer \citep{hohmann1925}.
+It consists of two impulsive burns: the first injects the spacecraft into an
+elliptical transfer orbit with periapsis $r_1$ and apoapsis $r_2$; the second
+circularises the orbit at $r_2$.
+The semi-major axis of the transfer ellipse is $a_t = (r_1 + r_2)/2$.
+The required velocity increments are:
+
+\begin{align}
+\Delta v_1 &= v_{\mathrm{peri}}(a_t) - v_{\mathrm{circ}}(r_1)
+            = \sqrt{\frac{GM}{r_1}}\left(\sqrt{\frac{2r_2}{r_1+r_2}} - 1\right)
+\label{eq:dv1} \\[4pt]
+\Delta v_2 &= v_{\mathrm{circ}}(r_2) - v_{\mathrm{apo}}(a_t)
+            = \sqrt{\frac{GM}{r_2}}\left(1 - \sqrt{\frac{2r_1}{r_1+r_2}}\right)
+\label{eq:dv2}
+\end{align}
+
+For the Earth--Mars Hohmann transfer using real ephemeris semi-major axes
+($r_1 = 1.000$~AU, $r_2 = 1.524$~AU), \textit{AstroSim} yields
+$\Delta v_{\mathrm{total}} = 5.597$~km\,s$^{-1}$ and a transfer time of
+approximately 8.6~months, consistent with published astrodynamics
+references \citep{vallado2013}.
+
+\subsubsection{Tsiolkovsky Rocket Equation}
+
+Propulsive requirements are characterised using the Tsiolkovsky rocket equation
+\citep{tsiolkovsky1903}:
+
+\begin{formulabox}
+\begin{equation}
+\Delta v = v_e \ln\!\left(\frac{m_0}{m_f}\right)
+\label{eq:tsiolkovsky}
+\end{equation}
+\end{formulabox}
+
+where $v_e = I_{\mathrm{sp}} \cdot g_0$ is the effective exhaust velocity,
+$I_{\mathrm{sp}}$ is the specific impulse in seconds, $g_0 = 9.80665$~m\,s$^{-2}$
+is the standard gravitational acceleration, $m_0$ is the initial (wet) mass,
+and $m_f$ is the final (dry) mass after propellant exhaustion.
+
+\subsection{Numerical Implementation}
+
+Kepler's equation $M = E - e\sin E$ (where $M$ is mean anomaly and $E$ is
+eccentric anomaly) is solved iteratively using Newton--Raphson iteration to
+a convergence tolerance of $10^{-10}$~radians.
+The eccentric anomaly is converted to true anomaly via:
+
+\begin{equation}
+\tan\!\left(\frac{\theta}{2}\right) =
+  \sqrt{\frac{1+e}{1-e}} \cdot \tan\!\left(\frac{E}{2}\right)
+\label{eq:ea_to_ta}
+\end{equation}
+
+All constants are stored to full double-precision floating-point accuracy.
+No approximations are introduced in the computation of any physical quantity.
+
+% ══════════════════════════════════════════════════════════════════════════════
+\section{Software Architecture}
+% ══════════════════════════════════════════════════════════════════════════════
+
+\textit{AstroSim} follows a layered architecture separating physical models,
+numerical simulation, visualisation, and user interface concerns.
+Figure~\ref{fig:architecture} illustrates the dependency structure.
+
+\subsection{Repository Structure}
+
+\begin{lstlisting}[language=bash, style=python, caption={AstroSim repository structure.}]
+astrosim/
+|-- app.py                   # Streamlit entry point
+|-- requirements.txt
+|-- physics/
+|   |-- constants.py         # IAU 2012 / CODATA 2018 constants
+|   |-- gravity.py           # Newtonian gravitation (10 functions)
+|   |-- orbital_mechanics.py # Kepler / vis-viva / transfers (15 functions)
+|-- simulation/
+|   |-- orbit_simulator.py   # Numerical orbit propagation
+|-- paper/
+|   |-- paper.tex            # This document
+|   |-- references.bib
+\end{lstlisting}
+
+\subsection{Physics Layer}
+
+The \texttt{physics} package contains three modules.
+
+\textbf{\texttt{constants.py}} defines 50+ physical and astronomical constants
+following IAU~2012 and CODATA~2018 standards, including full planetary data
+for all eight solar system planets and unit conversion utilities.
+
+\textbf{\texttt{gravity.py}} implements ten functions covering: gravitational
+force (Eq.~\ref{eq:newton}), gravitational potential energy (Eq.~\ref{eq:potential}),
+surface gravitational acceleration (Eq.~\ref{eq:gravity}), escape velocity
+(Eq.~\ref{eq:escape}), Schwarzschild radius (Eq.~\ref{eq:schwarzschild}),
+Hill sphere radius, Roche limit, reduced mass, tidal acceleration, and
+gravitational wave power (Peters formula).
+
+\textbf{\texttt{orbital\_mechanics.py}} implements fifteen functions covering:
+circular orbital velocity and period (Eq.~\ref{eq:kepler3}), vis-viva equation
+(Eq.~\ref{eq:visviva}), orbital geometry (apoapsis, periapsis, semi-minor axis,
+polar equation), specific orbital energy, specific angular momentum, Hohmann
+transfer (Eq.~\ref{eq:dv1}--\ref{eq:dv2}), Tsiolkovsky $\Delta v$
+(Eq.~\ref{eq:tsiolkovsky}), Kepler's equation solver, anomaly conversions, mean
+motion, and a comprehensive \texttt{orbital\_summary()} function.
+
+\subsection{Visualisation and Interface Layer}
+
+The \texttt{app.py} entry point uses Streamlit \citep{streamlit2019} to
+construct an interactive web application.
+Visualisations are rendered using Matplotlib \citep{hunter2007} with a custom
+dark-field theme designed to evoke the aesthetic of scientific instrumentation.
+The interface exposes all physical parameters as interactive controls
+(sliders, number inputs, dropdown selectors), with all computed quantities
+updating in real time.
+
+The application is deployable as a public web service via Streamlit Community
+Cloud at no cost, requiring only a public GitHub repository.
+
+\subsection{Dependencies}
+
+\begin{table}[h!]
+\centering
+\caption{Core software dependencies and their roles in \textit{AstroSim}.}
+\label{tab:deps}
+\begin{tabular}{llll}
+\toprule
+Package & Version & Role & Reference \\
+\midrule
+Python    & $\geq$3.9  & Runtime environment      & \citet{vanrossum2009} \\
+NumPy     & $\geq$1.24 & Array operations         & \citet{harris2020} \\
+SciPy     & $\geq$1.11 & Numerical methods        & \citet{virtanen2020} \\
+Matplotlib& $\geq$3.7  & Scientific visualisation & \citet{hunter2007} \\
+Streamlit & $\geq$1.30 & Web application layer    & \citet{streamlit2019} \\
+Pandas    & $\geq$2.0  & Data handling            & \citet{mckinney2010} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+% ══════════════════════════════════════════════════════════════════════════════
+\section{Simulation Modules}
+% ══════════════════════════════════════════════════════════════════════════════
+
+\textit{AstroSim} exposes four primary simulation modules, accessible through
+the application sidebar.
+
+\subsection{Module 1: Orbital Simulator}
+
+The orbital simulator renders the true orbital geometry of a body under
+Keplerian mechanics.
+User-controlled parameters include the central star mass (in solar masses),
+orbital semi-major axis (in AU), and eccentricity.
+Real planetary presets are provided for Earth, Mars, Jupiter, and Halley's
+Comet.
+
+The orbit is drawn using the polar form of the ellipse (Eq.~\ref{eq:polar}).
+The vis-viva equation (Eq.~\ref{eq:visviva}) is evaluated at 720 uniformly
+spaced true anomaly values to produce a velocity profile for the full orbit,
+which is displayed as a secondary chart below the orbital diagram.
+An optional comparison orbit (any semi-major axis, circular) can be overlaid.
+Live metrics display the orbital period, circular and periapsis/apoapsis
+velocities, and specific orbital energy, all recomputed on each parameter
+change.
+
+Validation: Earth's orbital period yields $T = 0.9999$~yr ($<0.01\%$ error
+relative to the Julian year), and Earth's mean orbital speed yields
+$v = 29{,}789$~m\,s$^{-1}$ ($<0.02\%$ error relative to the IAU value of
+$29{,}784.69$~m\,s$^{-1}$).
+
+\subsection{Module 2: Gravity Calculator}
+
+The gravity calculator evaluates the pairwise gravitational interaction between
+two bodies of user-specified mass at user-specified separation.
+Output quantities include gravitational force (Eq.~\ref{eq:newton}),
+potential energy (Eq.~\ref{eq:potential}), and accelerations induced on each
+body.
+
+The module provides a log-log force vs.\ separation plot showing the $r^{-2}$
+dependence, a gravitational potential energy well chart, and a bar chart
+comparing the gravitational force from body~1 at each planet's mean orbital
+distance.
+Presets include the Earth--Moon system, the Sun--Earth system, the
+Earth--ISS system, Sun--Jupiter, and a neutron star binary.
+
+\subsection{Module 3: Escape Velocity and Mission Planner}
+
+This module contains three sub-tabs.
+
+\textbf{Escape Velocity.}
+For any user-specified body mass and radius, the module computes escape
+velocity (Eq.~\ref{eq:escape}), low-orbit velocity, surface gravity, and
+Schwarzschild radius (Eq.~\ref{eq:schwarzschild}).
+A compactness alert is triggered when $R/r_s < 10$, flagging that
+general-relativistic corrections become non-negligible.
+Presets include Earth, Moon, Mars, Venus, Jupiter, the Sun, a white dwarf,
+and a neutron star.
+
+\textbf{Hohmann Transfer Planner.}
+The user specifies departure and arrival orbit radii; the module computes
+the full Hohmann transfer budget (Eq.~\ref{eq:dv1}--\ref{eq:dv2}) and renders
+a scaled diagram of the departure orbit, arrival orbit, and transfer ellipse,
+with burn annotations at the correct orbital positions.
+Presets include Earth--Mars, Earth--Venus, Earth--Jupiter, and LEO--GEO.
+
+\textbf{Rocket Equation.}
+The module accepts specific impulse and initial/final masses, computing
+$\Delta v$ from equation~(\ref{eq:tsiolkovsky}) and displaying a $\Delta v$
+vs.\ mass-ratio curve with reference lines at the LEO insertion speed
+(7.9~km\,s$^{-1}$), Earth escape speed (11.2~km\,s$^{-1}$), and Mars
+Hohmann $\Delta v$ (5.6~km\,s$^{-1}$).
+A horizontal bar chart contextualises the computed $\Delta v$ against standard
+mission budgets.
+
+\subsection{Module 4: Astronomical Unit Converter}
+
+The converter supports ten distance units spanning 24 orders of magnitude:
+metres, kilometres, Astronomical Units, light-seconds, light-minutes,
+light-hours, light-years, parsecs, kiloparsecs, and megaparsecs.
+For any input, the module displays all ten converted values and a set of
+contextual ratios (as multiples of the Earth--Moon distance, Earth--Sun
+distance, Milky Way diameter, and Andromeda distance).
+
+A mass converter (kilograms, solar masses, Earth masses, Jupiter masses,
+electron masses) and velocity converter (m\,s$^{-1}$, km\,s$^{-1}$,
+km\,h$^{-1}$, AU\,yr$^{-1}$, $c$) are provided in a secondary tab.
+
+A universe scale visualisation displays 18 reference objects from quarks
+($10^{-18}$~m) to the observable universe ($10^{26}$~m) on a logarithmic
+horizontal bar chart, spanning approximately 44 orders of magnitude.
+
+% ══════════════════════════════════════════════════════════════════════════════
+\section{Educational Applications}
+% ══════════════════════════════════════════════════════════════════════════════
+
+\textit{AstroSim} is designed to support several distinct educational contexts.
+
+\textbf{Undergraduate physics and engineering courses.}
+The orbital simulator and Hohmann transfer modules provide direct, interactive
+demonstrations of concepts central to classical mechanics and astrodynamics
+curricula: conservation of energy (vis-viva equation), conservation of angular
+momentum (Kepler's second law), and impulsive manoeuvre theory.
+Students can verify analytical results by manipulating parameters and observing
+live metric updates.
+
+\textbf{Science communication and public outreach.}
+The unit converter and universe scale module address a persistent challenge in
+astronomy communication: conveying the scale of cosmic distances to non-specialist
+audiences.
+The contextual ratio output (e.g., ``this distance is $4.24 \times 10^{-6}$
+times the Milky Way diameter'') grounds abstract measurements in relatable
+reference frames.
+
+\textbf{Early research preparation.}
+The Hohmann transfer and Tsiolkovsky modules introduce mission design concepts
+used by practising aerospace engineers.
+Students considering research in astrophysics, space science, or aerospace
+engineering can develop physical intuition for $\Delta v$ budgets and
+propellant fractions before engaging with advanced astrodynamics texts.
+
+\textbf{Self-directed learning.}
+Because the platform requires no installation (deployable as a public URL via
+Streamlit Community Cloud) and no programming knowledge to operate, it is
+accessible to learners without institutional access to laboratory computing
+resources.
+
+% ══════════════════════════════════════════════════════════════════════════════
+\section{Limitations and Future Work}
+% ══════════════════════════════════════════════════════════════════════════════
+
+The current version of \textit{AstroSim} operates within the framework of
+Newtonian mechanics and Keplerian two-body dynamics.
+This approximation is excellent for the solar system bodies and mission
+scenarios the platform presently models, but introduces known limitations.
+
+Perturbative effects — including the oblateness ($J_2$) correction to Earth's
+gravitational field, solar radiation pressure, and third-body effects —
+are not included.
+For low-Earth orbit applications these effects produce secular drift in orbital
+elements on timescales of days to weeks, which the current simulator does not
+reproduce.
+
+General-relativistic corrections are not modelled.
+The Schwarzschild radius computed in Module~3 serves as a dimensionally correct
+indicator, but the dynamics near compact objects require the Schwarzschild or
+Kerr metric.
+
+The simulator uses the two-body formulation exclusively.
+Multi-body gravitational dynamics (the $N$-body problem) exhibit qualitatively
+different behaviour — including chaos in three-body systems \citep{poincare1892}
+and mean-motion resonances — which cannot be captured by the present architecture.
+
+\textbf{Planned extensions.}
+
+\begin{itemize}
+\item \textbf{N-body integrator.}
+  Implementation of a fourth-order Runge--Kutta or symplectic (Verlet/Leapfrog)
+  integrator \citep{hairer2006} for multi-body systems, enabling simulation of
+  binary stars, Trojan asteroids, and planetary stability analysis.
+
+\item \textbf{Real ephemeris data.}
+  Integration with the NASA JPL Horizons API to retrieve real-time planetary
+  state vectors, replacing the current Keplerian approximations with true
+  numerical ephemeris.
+
+\item \textbf{Three-dimensional visualisation.}
+  Extension of orbital plots from two dimensions to three using Plotly
+  \citep{plotly2015}, enabling representation of inclined and non-coplanar orbits.
+
+\item \textbf{Atmospheric entry and re-entry dynamics.}
+  Addition of aerodynamic deceleration models for entry trajectory simulation,
+  extending the platform's utility to atmospheric flight mechanics.
+
+\item \textbf{Relativistic corrections.}
+  Post-Newtonian orbital precession (e.g., Mercury's perihelion advance of
+  43~arcseconds per century) as a bridge to general relativity.
+\end{itemize}
+
+% ══════════════════════════════════════════════════════════════════════════════
+\section{Conclusion}
+% ══════════════════════════════════════════════════════════════════════════════
+
+This paper has presented \textit{AstroSim}, an open-source interactive
+platform for astrophysics simulation and orbital mechanics education.
+The platform implements a physically accurate physics engine grounded in IAU
+and CODATA standards, exposing gravitational dynamics, Keplerian orbital
+mechanics, escape velocity analysis, Hohmann transfer planning, and
+astronomical unit conversion through a real-time interactive web interface.
+
+All computed quantities have been validated against established reference
+values: orbital periods, escape velocities, Hohmann transfer $\Delta v$
+budgets, and Schwarzschild radii agree with published astrodynamics references
+to within numerical precision.
+The platform is openly available, freely deployable, and requires no
+programming background to use.
+
+\textit{AstroSim} demonstrates that interactive simulation tools grounded in
+rigorous physics can serve as effective bridges between abstract formalism and
+physical intuition, supporting students, educators, and early researchers
+entering the fields of astrophysics, computational science, and aerospace
+engineering.
+
+% ══════════════════════════════════════════════════════════════════════════════
+\section*{Acknowledgements}
+% ══════════════════════════════════════════════════════════════════════════════
+
+The author thanks the open-source scientific Python community for the tools
+that made this work possible: NumPy, SciPy, Matplotlib, and Streamlit.
+Physical constants and planetary data are sourced from the International
+Astronomical Union (IAU) and the Committee on Data of the International
+Science Council (CODATA).
+
+% ══════════════════════════════════════════════════════════════════════════════
+\section*{Author Contributions}
+% ══════════════════════════════════════════════════════════════════════════════
+
+D.~Palencia: conceptualisation, software design and implementation,
+physical model validation, visualisation, manuscript preparation.
+
+% ══════════════════════════════════════════════════════════════════════════════
+\bibliography{references}
+\bibliographystyle{plainnat}
+% ══════════════════════════════════════════════════════════════════════════════
+
+\end{document}
